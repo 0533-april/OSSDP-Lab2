@@ -29,35 +29,43 @@ import java.util.Arrays;
  */
 class Solution4 {
     public int maximumGap(int[] nums) {
-
-        int n = nums.length - 1;
+        int n = nums.length;
         if (n < 2) {
             return 0;
         }
+        
+        // 使用基数排序
+        int maxVal = Arrays.stream(nums).max().getAsInt();
         long exp = 1;
         int[] buf = new int[n];
-        int maxVal = Arrays.stream(nums).max().getAsInt();
-
-        while (maxVal > exp) {
+        
+        while (maxVal >= exp) {
             int[] cnt = new int[10];
+            // 统计每个位上的数字出现次数
             for (int i = 0; i < n; i++) {
                 int digit = (nums[i] / (int) exp) % 10;
                 cnt[digit]++;
             }
-            for (int i = 1; i < 10; i++){
+            // 计算前缀和，用于确定位置
+            for (int i = 1; i < 10; i++) {
                 cnt[i] += cnt[i - 1];
+            }
+            // 从后向前遍历，将元素放入缓冲区
             for (int i = n - 1; i >= 0; i--) {
                 int digit = (nums[i] / (int) exp) % 10;
                 buf[cnt[digit] - 1] = nums[i];
                 cnt[digit]--;
             }
+            // 将缓冲区数据复制回原数组
             System.arraycopy(buf, 0, nums, 0, n);
-            exp += 10;
+            exp *= 10; // 移动到下一位
         }
-
-        int ret = 0;
-            for (int i = 1; i < n; i++) {
-            ret = Math.max(ret, nums[i] - nums[i - 1]);
-        }return ret;
+        
+        // 计算排序后相邻元素的最大差值
+        int maxGap = 0;
+        for (int i = 1; i < n; i++) {
+            maxGap = Math.max(maxGap, nums[i] - nums[i - 1]);
+        }
+        return maxGap;
     }
 }
